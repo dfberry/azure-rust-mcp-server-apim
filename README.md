@@ -3,6 +3,7 @@
 This workspace implements a RESTful Song API service with Model Context Protocol (MCP) integration. The project demonstrates how to build and deploy a web service that provides random song information while also supporting AI tool integration through MCP.
 
 [Youtube](https://youtu.be/NhkicMSey8o)
+[Azure documentation](https://learn.microsoft.com/azure/api-management/export-rest-mcp-server#configure-policies-for-the-mcp-server)
 
 ## Project Structure
 
