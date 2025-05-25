@@ -1,0 +1,88 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/Azure/azure-dev/main/schemas/v1.0/azure.yaml.json
+
+name: rust-aca-azd-port-3000
+metadata:
+    template: azd-init@1.10.3
+
+services:
+  api:
+    project: .
+    language: docker
+    host: containerapp
+    docker:
+      path: ./Dockerfile
+      context: .
+
+pipeline:
+  build:
+    before:
+      - run: echo "Starting build process"
+    after:
+      - run: echo "Build process completed"
+  
+  deploy:
+    steps:
+      - task: azd/containerapp/deploy@1
+        inputs:
+          containerAppName: azd-from-template
+
+hooks:
+  postprovision:
+    windows:
+      shell: pwsh
+      run: |
+        # Set environment variables for the Container App from Bicep outputs
+        azd env set AZURE_COSMOS_ENDPOINT "$env:AZURE_COSMOS_ENDPOINT"
+        azd env set AZURE_COSMOS_DATABASE "$env:AZURE_COSMOS_DATABASE"
+        azd env set AZURE_COSMOS_CONTAINER "$env:AZURE_COSMOS_CONTAINER"
+        azd env set AZURE_COSMOS_PARTITION_KEY "$env:AZURE_COSMOS_PARTITION_KEY"
+        azd env set AZURE_CONTAINER_REGISTRY_ENDPOINT "$env:AZURE_CONTAINER_REGISTRY_ENDPOINT"
+        
+        # Set application-specific environment variables from .env
+        Write-Host "Setting application environment variables..."
+        azd env set PORT "3000"
+        
+        # Secure variables - prompt user to enter values
+        Write-Host "Please enter values for secret environment variables:"
+        $databaseUrl = Read-Host "DATABASE_URL" -AsSecureString
+        
+        # Convert secure strings to plain text for azd
+        $BSTR_databaseUrl = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($databaseUrl)
+        
+        azd env set DATABASE_URL ([System.Runtime.InteropServices.Marshal]::PtrToStringAuto($BSTR_databaseUrl))
+        
+        # Non-secret environment variables
+        azd env set ENVIRONMENT "production"
+        
+        # Clean up BSTR pointers
+        [System.Runtime.InteropServices.Marshal]::ZeroFreeBSTR($BSTR_databaseUrl)
+        
+        Write-Host "Environment variables have been set successfully."
+      continueOnError: false
+      interactive: true
+    posix:
+      shell: sh
+      run: |
+        # Set environment variables for the Container App from Bicep outputs
+        azd env set AZURE_COSMOS_ENDPOINT "$AZURE_COSMOS_ENDPOINT"
+        azd env set AZURE_COSMOS_DATABASE "$AZURE_COSMOS_DATABASE"
+        azd env set AZURE_COSMOS_CONTAINER "$AZURE_COSMOS_CONTAINER"
+        azd env set AZURE_COSMOS_PARTITION_KEY "$AZURE_COSMOS_PARTITION_KEY"
+        azd env set AZURE_CONTAINER_REGISTRY_ENDPOINT "$AZURE_CONTAINER_REGISTRY_ENDPOINT"
+        
+        # Set application-specific environment variables from .env
+        echo "Setting application environment variables..."
+        azd env set PORT "3000"
+        
+        # Secure variables - prompt user to enter values
+        echo "Please enter values for secret environment variables:"
+        echo -n "DATABASE_URL: " && read -s DATABASE_URL && echo
+        
+        azd env set DATABASE_URL "$DATABASE_URL"
+        
+        # Non-secret environment variables
+        azd env set ENVIRONMENT "production"
+        
+        echo "Environment variables have been set successfully."
+      continueOnError: false
+      interactive: true

@@ -1,0 +1,4 @@
+
+GET https://dfb-osb.azure-api.net/mcp/sse
+Content-Type: application/json
+Ocp-Apim-Subscription-Key: "669004781f3e46de90eaecf495337415"

@@ -1,0 +1,60 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Rust Song API",
+    "description": "A RESTful API service that provides random song information including titles, artists, and memorable lyrics. This service is designed to be easily integrated with Azure API Management and supports JSON responses.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://container-app-psytouzwk2aow.lemonsmoke-c6ad6852.eastus2.azurecontainerapps.io",
+      "description": "Local development server"
+    }
+  ],
+  "paths": {
+    "/song": {
+      "get": {
+        "summary": "Get a random song from the collection",
+        "description": "Retrieves and returns a randomly selected song from the database, providing structured data including the song's title, performing artist, and a memorable lyric. The response is formatted as JSON and is suitable for display or further processing.",
+        "operationId": "getRandomSong",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved a random song. The response contains a JSON object with title, artist, and lyric properties.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Song"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Song": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "The full title of the song as officially released",
+            "example": "Hello"
+          },
+          "artist": {
+            "type": "string",
+            "description": "The primary artist or band who performed or released the song",
+            "example": "Adele"
+          },
+          "lyric": {
+            "type": "string",
+            "description": "A significant or memorable lyric excerpt from the song, typically from the chorus or a well-known verse",
+            "example": "Hello, it's me"
+          }
+        },
+        "required": ["title", "artist", "lyric"]
+      }
+    }
+  }
+}

@@ -1,0 +1,7 @@
+[workspace]
+members = [
+    "server",
+    "song-lib"
+]
+
+resolver = "2"
