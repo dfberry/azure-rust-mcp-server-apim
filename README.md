@@ -2,8 +2,81 @@
 
 This workspace implements a RESTful Song API service with Model Context Protocol (MCP) integration. The project demonstrates how to build and deploy a web service that provides random song information while also supporting AI tool integration through MCP.
 
-* [Youtube video (11 min)](https://youtu.be/NhkicMSey8o)
-* [Azure documentation](https://learn.microsoft.com/azure/api-management/export-rest-mcp-server#configure-policies-for-the-mcp-server)
+[Youtube](https://youtu.be/NhkicMSey8o)
+[Azure documentation](https://learn.microsoft.com/azure/api-management/export-rest-mcp-server#configure-policies-for-the-mcp-server)
+
+The dev container includes all required tools: Azure CLI, Azure Developer CLI (azd), Rust toolchain, and Docker.
+
+## Open in browser
+
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/dfberry/azure-rust-mcp-server-apim)
+
+
+## Open in local dev container
+
+1. Local development prerequisites:
+   - [VS Code](https://code.visualstudio.com/)
+   - [Dev Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
+
+2. Clone and open in dev container:
+   ```bash
+   git clone https://github.com/yourusername/rust-mcp.git
+   cd rust-mcp
+   code .
+   ```
+   When prompted, click "Reopen in Container"
+
+## Deploy with Azure Developer CLI
+
+1. Deploy to Azure:
+   ```bash
+   azd auth login
+   azd init
+   azd up
+   ```
+
+2. Test the deployment:
+   ```bash
+   curl https://<your-app-url>/song
+   ```
+
+Your custom API is now deployed to Azure Container Apps.
+
+## Create an Azure API Management resource
+
+1. Use the [Azure portal](https://portal.azure.com) to create an Azure API Managment resource. 
+
+2. Create the Song API on the resource using the [openapi.json](./server/openapi.json).
+
+3. [Configure resource for MCP servers](https://learn.microsoft.com/azure/api-management/export-rest-mcp-server#configure-policies-for-the-mcp-server). Estimated time is up to 2.5 hours for Azure to set up the MCP connection for the API Management resource.
+
+## Configure Visual Studio Code to use MCP server
+
+1. In the Azure portal, get the APIM endpoint and subscription key.
+2. In Visual Studio Code, use the Command Pallete to add an MCP server with the remote URI.
+3. Edit the MCP server to add the required header for `Ocp-Apim-Subscription-Key`:
+
+    ```json
+    {
+        "files.autoSave": "afterDelay",
+        "rust-analyzer.initializeStopped": true,
+        "@azure.argTenant": "",
+        "mcp": {
+            "servers": {
+                "my-mcp-server-<UNIQUE_ID>": {
+                    "url": "<AZURE_API_MANAGEMENT_ENDPOINT_FOR_MCP>/mcp/sse",
+                    "headers": {
+                        "Ocp-Apim-Subscription-Key": "<AZURE_API_MANAGEMENT_SUBSCRIPTION_KEY>"
+                    }
+                }
+            }
+        }
+    }
+    ```
+
+4. Use the Chat to ask for a song: `What is a good hello song`.
+
+
 
 ## Project Structure
 
@@ -37,13 +110,14 @@ rust-mcp/
 
 ## Getting Started
 
-### Prerequisites
+### Manual Setup Prerequisites
 
 - Rust toolchain (install via [rustup](https://rustup.rs/))
 - Docker (for container builds)
 - Azure CLI (for deployment)
+- Azure Developer CLI (azd)
 
-### Local Development
+### Local Development (Without Dev Container)
 
 1. Build the workspace:
 ```bash
@@ -116,3 +190,4 @@ The server implements MCP tools for AI integration:
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
+
