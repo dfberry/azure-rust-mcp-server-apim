@@ -1,114 +1,115 @@
-# Rust MCP (Model Context Protocol) Implementation
+# Rust Song API with MCP Integration
 
-This workspace contains two crates:
+This workspace implements a RESTful Song API service with Model Context Protocol (MCP) integration. The project demonstrates how to build and deploy a web service that provides random song information while also supporting AI tool integration through MCP.
 
-1. **mcp-client-rust**: A client implementation for connecting to LLM services using the Model Context Protocol
-2. **mcp-server-rust**: A server implementation that registers tools and processes tool calls via the MCP protocol
-
-## Structure
+## Project Structure
 
 ```
 rust-mcp/
-├── client/          # Client implementation
-│   └── src/
-│       ├── error.rs
-│       ├── main.rs
-│       └── mcp_client.rs
-├── server/          # Server implementation
-│   └── src/
-│       ├── error.rs
-│       ├── main.rs
-│       ├── mcp_server.rs
-│       └── transport/
-│           └── stdio.rs
-└── Cargo.toml       # Workspace manifest
+├── server/          # Main API server implementation
+│   ├── src/        # Server source code
+│   ├── openapi.json # API specification
+│   └── Cargo.toml  # Server dependencies
+├── song-lib/       # Song generation library
+│   ├── src/        # Library source code
+│   └── Cargo.toml  # Library dependencies
+├── infra/          # Infrastructure as Code
+│   ├── main.bicep  # Azure deployment template
+│   └── main.bicepparam # Azure deployment parameters
+├── http/           # API test files
+│   ├── song.http   # REST API tests
+│   └── song-mcp.http # MCP integration tests
+└── Dockerfile      # Container definition
 ```
+
+## Features
+
+- RESTful API endpoint for random song generation
+- Modular architecture with separate song library
+- Azure Container Apps deployment support
+- Model Context Protocol (MCP) integration for AI tools
+- OpenAPI specification
+- Docker containerization
+- Infrastructure as Code using Bicep
 
 ## Getting Started
 
 ### Prerequisites
 
 - Rust toolchain (install via [rustup](https://rustup.rs/))
-- For the client, you'll need an API key for supported LLM providers (e.g., Anthropic)
+- Docker (for container builds)
+- Azure CLI (for deployment)
 
-### Running the Client
+### Local Development
 
-```bash
-# Navigate to the client directory
-cd client
-
-# Set up environment variables (create a .env file)
-echo "ANTHROPIC_API_KEY=your_api_key_here" > .env
-
-# Run the client
-cargo run
-```
-
-### Running the Server
-
-```bash
-# Navigate to the server directory
-cd server
-
-# Run the server (will use stdio for communication)
-cargo run
-```
-
-The server implements two example tools:
-- `say-hello` - Returns a greeting message
-- `echo` - Echoes back the provided message
-
-The server uses stdio transport for communication, making it compatible with any client that implements the MCP protocol.
-
-## Development
-
-To build both crates at once:
-
+1. Build the workspace:
 ```bash
 cargo build --workspace
 ```
 
-To run tests for all crates:
-
+2. Run the tests:
 ```bash
 cargo test --workspace
 ```
 
-## Understanding the Implementation
-
-### MCP Client
-
-The client is built using the Anthropic Claude API. It sends requests to LLM services and handles responses.
-
-### MCP Server
-
-The server implements the Model Context Protocol, allowing it to:
-
-1. Register tools with names, descriptions, and parameter schemas
-2. Process incoming tool call requests
-3. Execute the appropriate tool handler
-4. Return formatted responses
-
-The server follows the same architecture as the TypeScript example:
-
-```typescript
-// Create server instance
-const server = new McpServer({
-  name: "hello-world",
-  version: "1.0.0",
-});
-
-// Register tools with schema and handlers
-server.tool("say-hello", "Returns a greeting message", {...});
-server.tool("echo", "Echoes back the provided message", {...});
-
-// Start the server with a transport
-const transport = new StdioServerTransport();
-await server.connect(transport);
+3. Start the server:
+```bash
+cd server
+cargo run
 ```
 
-The Rust implementation provides similar functionality with a type-safe API.
+4. Try the API:
+```bash
+curl http://localhost:3000/song
+```
 
-## Additional Resources
+### Docker Build
 
-For more information on the Model Context Protocol, see the [MCP documentation](https://modelcontextprotocol.io/).
+Build and run the container locally:
+
+```bash
+docker build -t song-api .
+docker run -p 3000:3000 song-api
+```
+
+### Azure Deployment
+
+Deploy to Azure Container Apps using the provided Bicep templates:
+
+```bash
+cd infra
+az deployment sub create --location eastus2 --template-file main.bicep --parameters main.bicepparam
+```
+
+## Components
+
+### Song Library (`song-lib`)
+A Rust library crate that provides the core functionality for random song generation. See [song-lib/README.md](song-lib/README.md) for details.
+
+### API Server (`server`)
+The main web service that exposes the song generation functionality via REST API and MCP. See [server/README.md](server/README.md) for API documentation.
+
+### Infrastructure (`infra`)
+Contains Bicep templates for deploying the service to Azure Container Apps with proper configuration and scaling rules.
+
+## API Documentation
+
+The API is documented using OpenAPI 3.0 specification. You can find the full API documentation in `server/openapi.json`.
+
+## Model Context Protocol Integration
+
+The server implements MCP tools for AI integration:
+- `get_random_song` - Returns a random song with title, artist, and lyrics
+- Support for both REST and MCP interfaces
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.

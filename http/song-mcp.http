@@ -1,4 +1,10 @@
 
-GET https://dfb-osb.azure-api.net/mcp/sse
+
+@host = <RESOURCE_NAME>.azure-api.net
+@port = 443
+@subscriptionKey = <APIM_SUBSCRIPTION_KEY>
+
+GET https://{{host}}:{{port}}/mcp/sse
 Content-Type: application/json
-Ocp-Apim-Subscription-Key: "669004781f3e46de90eaecf495337415"
+Ocp-Apim-Subscription-Key: "{{subscriptionKey}}"
+

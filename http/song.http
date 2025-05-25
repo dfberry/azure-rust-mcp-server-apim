@@ -1,3 +1,7 @@
-GET https://container-app-psytouzwk2aow.lemonsmoke-c6ad6852.eastus2.azurecontainerapps.io/song
+
+@host = <AZURE_CONTAINER_ENDPOINT>
+@port = 443
+
+GET https://{{host}}:{{port}}/song
 Content-Type: application/json
 
